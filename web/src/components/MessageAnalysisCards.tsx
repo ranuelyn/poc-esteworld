@@ -36,7 +36,24 @@ export function MessageAnalysisCards({
           }
           hot={analysis?.leadTemperature === "hot"}
         />
+        <AnalysisCard
+          label="Rep Score"
+          value={
+            caseItem?.agentPerformance
+              ? `${caseItem.agentPerformance.score}% · ${formatPerformanceLabel(caseItem.agentPerformance.label)}`
+              : "Waiting"
+          }
+          hot={caseItem?.agentPerformance ? caseItem.agentPerformance.score >= 85 : false}
+          accent={caseItem?.agentPerformance ? caseItem.agentPerformance.score < 70 : false}
+        />
       </div>
+      {caseItem?.agentPerformance ? (
+        <ul className="performance-notes">
+          {caseItem.agentPerformance.notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
 }
@@ -62,4 +79,11 @@ function AnalysisCard({
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function formatPerformanceLabel(value: string) {
+  return value
+    .split("_")
+    .map((part) => capitalize(part))
+    .join(" ");
 }

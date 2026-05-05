@@ -8,11 +8,19 @@
     "dev:api": "tsx watch src/main.ts",
     "dev:worker": "tsx watch src/infrastructure/queue/chatWorker.ts",
     "dev:web": "vite --config web/vite.config.ts",
+    "dev:up": "bash ./scripts/dev-up.sh",
+    "dev:down": "bash ./scripts/dev-down.sh",
+    "dev:status": "bash ./scripts/dev-status.sh",
     "start:api": "node dist/main.js",
     "start:worker": "node dist/infrastructure/queue/chatWorker.js",
     "build": "tsc -p tsconfig.json && vite build --config web/vite.config.ts",
     "typecheck": "tsc --noEmit && tsc -p web/tsconfig.json --noEmit",
-    "seed": "tsx src/scripts/seedFakeDialogues.ts"
+    "seed": "tsx src/scripts/seedFakeDialogues.ts",
+    "extract:closewon": "tsx src/scripts/exportCloseWonDocx.ts",
+    "replay:closewon": "tsx src/scripts/replayCloseWonWebhooks.ts",
+    "closewon:export": "bash ./scripts/closewon.sh export",
+    "closewon:replay": "bash ./scripts/closewon.sh replay",
+    "closewon:seed": "bash ./scripts/closewon.sh seed"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -30,11 +38,13 @@
     "zod": "^4.4.1"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "adm-zip": "^0.5.17",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10"

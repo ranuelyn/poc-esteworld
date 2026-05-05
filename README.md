@@ -53,6 +53,61 @@ The endpoint returns `200 OK` after enqueueing. The worker posts the generated l
 curl http://localhost:3000/api/mock/zoho/leads
 ```
 
+## Close-won WhatsApp DOCX export (fixtures)
+
+All-in-one shell entrypoint (same style as `./scripts/dev-up.sh`):
+
+```bash
+./scripts/closewon.sh export              # → data/derived/* (segments, webhook single-thread, rag)
+./scripts/closewon.sh replay              # needs API + worker
+./scripts/closewon.sh seed                # Qdrant + Ollama; same as npm run closewon:seed
+# npm run closewon:export | closewon:replay | closewon:seed
+```
+
+Exports like `CloseWon AI.docx` are Word copies of chats. Scripts turn them into **NDJSON webhook loads** (one job per inbound **Patient** segment, with a **cumulative** transcript in `text` so `buildSalesAssistantMessages` receives full-thread context) or a single **RAG JSON** snippet compatible with Qdrant seeding.
+
+By default each patient step gets its own `message_id`, so the **Sales Copilot UI** shows one sidebar row per step. For a **single chat thread** in the UI, pass `--webhook-single-thread` when generating NDJSON (fixed `message_id` + `patient_name`), or set `CHAT_WEBHOOK_FIXED_MESSAGE_ID` when replaying an existing file.
+
+Derived outputs contain **PII**; `data/derived/` is gitignored—regenerate locally as needed.
+
+**1. Inspect segmentation (sanity checklist + JSON)**
+
+```bash
+npm run extract:closewon -- --input "data/CloseWon AI.docx" --format segments \
+  --out data/derived/closewon-segments.json --preview 30
+```
+
+**2. NDJSON webhook replay (API + BullMQ worker must be running)**
+
+```bash
+npm run extract:closewon -- --input "data/CloseWon AI.docx" --format webhook \
+  --out data/derived/closewon-webhooks.ndjson \
+  --clinical-language-hint "English (UK)" \
+  --treatment "Liposuction, BBL and breast augmentation" \
+  --webhook-single-thread
+
+CHAT_WEBHOOK_BASE=http://localhost:3000 CHAT_WEBHOOK_REPLAY_DELAY_MS=300 \
+  npm run replay:closewon -- data/derived/closewon-webhooks.ndjson
+```
+
+Optional: without regenerating NDJSON, force one Copilot case during replay:
+
+```bash
+CHAT_WEBHOOK_FIXED_MESSAGE_ID=closewon-replay-thread \
+  npm run replay:closewon -- data/derived/closewon-webhooks.ndjson
+```
+
+**3. RAG snippet + optional extra seed**
+
+```bash
+npm run extract:closewon -- --input "data/CloseWon AI.docx" --format rag \
+  --out data/derived/closewon-rag.json --language en --lead-temperature hot
+
+npm run seed -- --extra data/derived/closewon-rag.json
+```
+
+`npm run seed` embeds the default [`data/fake-sales-dialogues.json`](data/fake-sales-dialogues.json) plus any `--extra` JSON arrays of sales dialogues.
+
 ## Multi-Tenant RAG Rule
 
 All vectors live in a single Qdrant collection. Each point has a `tenant_id` payload, and searches always apply a mandatory tenant filter plus `outcome = successful`. This keeps the PoC close to a future multi-tenant SaaS design without creating one collection per clinic.

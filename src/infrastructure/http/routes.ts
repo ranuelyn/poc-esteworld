@@ -3,7 +3,12 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import type { EnqueueWazzupMessage } from "../../application/use-cases/EnqueueWazzupMessage.js";
 import type { ChatMessage } from "../../domain/entities/ChatMessage.js";
-import type { SalesBoostType } from "../../domain/entities/LeadAssessment.js";
+import type { LeadAssessment, SalesBoostType } from "../../domain/entities/LeadAssessment.js";
+import {
+  GeminiLeadSimulator,
+  getScenarioById,
+  testScenarios
+} from "../gemini/GeminiLeadSimulator.js";
 import { inMemoryLeadSink } from "../mock/InMemoryLeadSink.js";
 import { ValidationAppError } from "../../shared/errors.js";
 
@@ -14,6 +19,7 @@ const wazzupPayloadSchema = z
     contact_id: z.string().min(1).optional(),
     patient_name: z.string().min(1).optional(),
     agent_name: z.string().min(1).optional(),
+    scenario_id: z.string().min(1).optional(),
     language: z.string().min(1).optional(),
     treatment: z.string().min(1).optional(),
     message_id: z.string().min(1).optional(),
@@ -36,6 +42,7 @@ const leadAssessmentSchema = z
     tenantId: z.string().min(1),
     contactId: z.string().min(1),
     messageId: z.string().min(1),
+    sourceMessageText: z.string().min(1).optional(),
     analysis: z.object({
       language: z.string().min(1),
       treatment: z.string().min(1),
@@ -116,6 +123,8 @@ const failureSchema = z.object({
   errorMessage: z.string().min(1)
 });
 
+const geminiLeadSimulator = new GeminiLeadSimulator();
+
 export function createRoutes(enqueueWazzupMessage: EnqueueWazzupMessage): Router {
   const router = Router();
 
@@ -142,7 +151,7 @@ export function createRoutes(enqueueWazzupMessage: EnqueueWazzupMessage): Router
 
   router.post("/api/mock/zoho", async (req: Request, res: Response, next) => {
     try {
-      const assessment = leadAssessmentSchema.parse(req.body);
+      const assessment = leadAssessmentSchema.parse(req.body) as LeadAssessment;
       await inMemoryLeadSink.save(assessment);
 
       res.status(201).json({
@@ -228,6 +237,37 @@ export function createRoutes(enqueueWazzupMessage: EnqueueWazzupMessage): Router
         jobId,
         case: caseItem
       });
+    } catch (error) {
+      nextError(error, res);
+    }
+  });
+
+  router.get("/api/test/scenarios", (_req: Request, res: Response) => {
+    res.status(200).json({ scenarios: testScenarios });
+  });
+
+  router.post("/api/test/scenarios/:scenarioId/opening", async (req: Request, res: Response) => {
+    try {
+      const scenarioId = requireParam(req.params.scenarioId, "scenarioId");
+      const scenario = getScenarioById(scenarioId);
+      const opening = await geminiLeadSimulator.generateOpeningMessage(scenario.id);
+      res.status(200).json({ scenario, opening });
+    } catch (error) {
+      nextError(error, res);
+    }
+  });
+
+  router.post("/api/test/cases/:messageId/lead-reply", async (req: Request, res: Response) => {
+    try {
+      const messageId = requireParam(req.params.messageId, "messageId");
+      const caseItem = inMemoryLeadSink.getCase(messageId);
+      if (!caseItem) {
+        res.status(404).json({ error: "Case not found" });
+        return;
+      }
+
+      const leadReply = await geminiLeadSimulator.generateLeadReply(caseItem);
+      res.status(200).json(leadReply);
     } catch (error) {
       nextError(error, res);
     }

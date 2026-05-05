@@ -20,14 +20,40 @@ const salesDialogueSchema = z.object({
 const salesDialoguesSchema = z.array(salesDialogueSchema);
 
 async function main() {
+  const extraPaths: string[] = [];
+  for (let i = 2; i < process.argv.length; i += 1) {
+    const arg = process.argv[i];
+    if (arg === "--extra") {
+      const next = process.argv[i + 1];
+      if (next) extraPaths.push(next);
+      i += 1;
+    }
+  }
+
   const fileUrl = new URL("../../data/fake-sales-dialogues.json", import.meta.url);
   const raw = await readFile(fileUrl, "utf8");
-  const dialogues = salesDialoguesSchema.parse(JSON.parse(raw)) satisfies SalesDialogue[];
+  let dialogues = salesDialoguesSchema.parse(JSON.parse(raw)) satisfies SalesDialogue[];
+
+  if (extraPaths.length > 0) {
+    const extraRows: SalesDialogue[] = [];
+    for (const fsPath of extraPaths) {
+      const extraRaw = await readFile(fsPath, "utf8");
+      const parsed = JSON.parse(extraRaw);
+      extraRows.push(...salesDialoguesSchema.parse(parsed));
+    }
+    dialogues = [...dialogues, ...extraRows];
+  }
 
   const embeddingClient = new OllamaEmbeddingClient();
   const ragRepository = new QdrantRagRepository();
 
-  logger.info({ count: dialogues.length }, "Embedding fake sales dialogues");
+  logger.info(
+    {
+      count: dialogues.length,
+      extraFiles: extraPaths.length ? extraPaths : undefined
+    },
+    "Embedding fake sales dialogues"
+  );
 
   const vectors = await Promise.all(
     dialogues.map((dialogue) =>

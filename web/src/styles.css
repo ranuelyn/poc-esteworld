@@ -62,6 +62,7 @@ h2 {
 }
 
 .nav-actions button,
+.nav-actions select,
 .admin-header button,
 .chat-sidebar-header button,
 .lead-simulator button,
@@ -75,7 +76,12 @@ h2 {
   padding: 10px 14px;
 }
 
+.nav-actions select {
+  min-width: 260px;
+}
+
 .nav-actions button.active,
+.nav-actions button.test-running,
 .lead-simulator button,
 .conversation-composer button,
 .chat-sidebar-header button,
@@ -83,6 +89,15 @@ h2 {
   background: #0f172a;
   border-color: #0f172a;
   color: #ffffff;
+}
+
+.nav-actions button.test-button {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.nav-actions button.test-running {
+  border-color: #0f766e;
 }
 
 .copilot-layout {
@@ -180,6 +195,15 @@ h2 {
   border: 1px solid #fecdd3;
   border-radius: 10px;
   color: #9f1239;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.test-status {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  color: #166534;
   margin-top: 14px;
   padding: 12px;
 }
@@ -309,6 +333,8 @@ h2 {
 
 .chat-bubble p {
   margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .chat-bubble.lead {
@@ -373,6 +399,16 @@ h2 {
 
 .analysis-card strong {
   font-size: 23px;
+}
+
+.performance-notes {
+  border: 1px solid #e2ded4;
+  border-radius: 10px;
+  color: #475569;
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 14px 18px 14px 34px;
 }
 
 .accent {

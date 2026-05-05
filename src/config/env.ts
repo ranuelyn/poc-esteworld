@@ -19,7 +19,11 @@ const envSchema = z.object({
   CHAT_QUEUE_NAME: z.string().min(1).default("chat_queue"),
   WORKER_CONCURRENCY: z.coerce.number().int().positive().default(2),
   RAG_TOP_K: z.coerce.number().int().positive().default(3),
-  MOCK_ZOHO_URL: z.url().default("http://localhost:3000/api/mock/zoho")
+  MOCK_ZOHO_URL: z.url().default("http://localhost:3000/api/mock/zoho"),
+  GEMINI_API_KEY: z.string().optional().transform((value) => value || undefined),
+  GEMINI_MODEL: z.string().min(1).default("gemini-3.1-flash-lite-preview"),
+  GEMINI_RETRY_MAX_ATTEMPTS: z.coerce.number().int().positive().default(4),
+  GEMINI_RETRY_BASE_DELAY_MS: z.coerce.number().int().positive().default(1500)
 });
 
 export const env = envSchema.parse(process.env);

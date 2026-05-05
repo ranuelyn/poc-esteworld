@@ -3,6 +3,10 @@ import type { LeadAssessment } from "../../domain/entities/LeadAssessment.js";
 import type { SalesBoostType, SuggestedReply } from "../../domain/entities/LeadAssessment.js";
 import type { LeadSinkPort } from "../../domain/ports/LeadSinkPort.js";
 import { env } from "../../config/env.js";
+import {
+  splitWazzupTranscriptToTurns,
+  transcriptLooksLikeWazzupTurns
+} from "../../shared/parseWazzupTranscript.js";
 
 export interface CopilotCase {
   message: ChatMessage;
@@ -12,6 +16,7 @@ export interface CopilotCase {
   selectedReplyId?: string;
   appliedBoosts: SalesBoostType[];
   boostedReply?: string;
+  agentPerformance?: AgentPerformance;
   analysisStartedAt?: string;
   aiDurationMs?: number;
   errorMessage?: string;
@@ -26,31 +31,53 @@ export interface ConversationMessage {
   createdAt: string;
 }
 
+export interface AgentPerformance {
+  score: number;
+  label: "excellent" | "good" | "needs_attention" | "risky";
+  notes: string[];
+}
+
+function conversationFromInbound(
+  messageId: string,
+  text: string,
+  receivedAt: string
+): ConversationMessage[] {
+  return splitWazzupTranscriptToTurns(text).map((turn, index) => ({
+    id: `${messageId}-${turn.role}-${index}`,
+    role: turn.role,
+    text: turn.text,
+    createdAt: receivedAt
+  }));
+}
+
 export class InMemoryLeadSink implements LeadSinkPort {
   private readonly cases = new Map<string, CopilotCase>();
 
   async save(assessment: LeadAssessment): Promise<void> {
     const existing = this.cases.get(assessment.messageId);
     const now = new Date().toISOString();
+    const leadTextFromCase =
+      existing?.conversation?.[0]?.text ?? existing?.message.text ?? assessment.sourceMessageText ?? "";
+    const placeholder =
+      "(Orijinal lead metni bulunamadı. API yeniden başlatıldıysa ilgili webhook’u tekrar gönderin.)";
     const fallbackMessage: ChatMessage = {
       tenantId: assessment.tenantId,
       channel: "whatsapp",
       contactId: assessment.contactId,
       messageId: assessment.messageId,
-      text: assessment.intent,
+      text: leadTextFromCase || placeholder,
       receivedAt: assessment.createdAt
     };
 
+    const leadTextForInitial =
+      leadTextFromCase || assessment.sourceMessageText || placeholder;
+    const initialConversation =
+      existing?.conversation ??
+      conversationFromInbound(assessment.messageId, leadTextForInitial, assessment.createdAt);
+
     const nextCase: CopilotCase = {
       message: existing?.message ?? fallbackMessage,
-      conversation: existing?.conversation ?? [
-        {
-          id: `${assessment.messageId}-lead-initial`,
-          role: "lead",
-          text: existing?.message.text ?? fallbackMessage.text,
-          createdAt: assessment.createdAt
-        }
-      ],
+      conversation: initialConversation,
       assessment,
       status: "ready",
       appliedBoosts: existing?.appliedBoosts ?? [],
@@ -72,42 +99,95 @@ export class InMemoryLeadSink implements LeadSinkPort {
       nextCase.boostedReply = existing.boostedReply;
     }
 
+    if (assessment.sourceMessageText && transcriptLooksLikeWazzupTurns(assessment.sourceMessageText)) {
+      nextCase.conversation = conversationFromInbound(
+        assessment.messageId,
+        assessment.sourceMessageText,
+        assessment.createdAt
+      );
+      nextCase.message = { ...nextCase.message, text: assessment.sourceMessageText };
+    } else if (
+      assessment.sourceMessageText &&
+      nextCase.conversation.length === 1 &&
+      nextCase.conversation[0]?.role === "lead"
+    ) {
+      const cur = nextCase.conversation[0].text;
+      const src = assessment.sourceMessageText;
+      if (src.length > cur.length || cur === assessment.intent) {
+        const repaired = { ...nextCase.conversation[0], text: src };
+        nextCase.conversation = [repaired];
+        nextCase.message = { ...nextCase.message, text: src };
+      }
+    }
+
+    const agentPerformance = buildAgentPerformance(nextCase);
+    if (agentPerformance) {
+      nextCase.agentPerformance = agentPerformance;
+    }
+
     this.cases.set(assessment.messageId, nextCase);
   }
 
   upsertMessage(message: ChatMessage): CopilotCase {
     const existing = this.cases.get(message.messageId);
     const now = new Date().toISOString();
+    const inboundTextChanged = !existing || existing.message.text !== message.text;
+
+    let conversation: ConversationMessage[];
+    if (!existing) {
+      conversation = conversationFromInbound(message.messageId, message.text, message.receivedAt);
+    } else if (inboundTextChanged) {
+      if (transcriptLooksLikeWazzupTurns(message.text)) {
+        conversation = conversationFromInbound(message.messageId, message.text, message.receivedAt);
+      } else if (existing.conversation.length === 1 && existing.conversation[0]?.role === "lead") {
+        conversation = [
+          {
+            ...existing.conversation[0]!,
+            text: message.text,
+            createdAt: message.receivedAt
+          }
+        ];
+      } else {
+        conversation = existing.conversation;
+      }
+    } else {
+      conversation = existing.conversation;
+    }
+
     const nextCase: CopilotCase = {
       message,
-      conversation: existing?.conversation ?? [
-        {
-          id: `${message.messageId}-lead-initial`,
-          role: "lead",
-          text: message.text,
-          createdAt: message.receivedAt
-        }
-      ],
-      status: existing?.assessment ? "ready" : existing?.status === "failed" ? "failed" : "pending",
-      appliedBoosts: existing?.appliedBoosts ?? [],
+      conversation,
+      appliedBoosts: inboundTextChanged ? [] : (existing?.appliedBoosts ?? []),
       createdAt: existing?.createdAt ?? now,
-      updatedAt: now
+      updatedAt: now,
+      status: "pending",
+      analysisStartedAt: now
     };
 
-    if (!existing?.assessment) {
-      nextCase.analysisStartedAt = now;
-    } else if (existing.analysisStartedAt) {
-      nextCase.analysisStartedAt = existing.analysisStartedAt;
+    if (!inboundTextChanged && existing) {
+      nextCase.status = existing.status === "failed" ? "failed" : existing.assessment ? "ready" : "pending";
+      nextCase.analysisStartedAt = existing.analysisStartedAt ?? now;
+      if (existing.assessment) {
+        nextCase.assessment = existing.assessment;
+      }
+      if (existing.selectedReplyId) {
+        nextCase.selectedReplyId = existing.selectedReplyId;
+      }
+      if (existing.boostedReply) {
+        nextCase.boostedReply = existing.boostedReply;
+      }
+      if (existing.agentPerformance) {
+        nextCase.agentPerformance = existing.agentPerformance;
+      }
     }
 
-    if (existing?.assessment) {
-      nextCase.assessment = existing.assessment;
-    }
-    if (existing?.selectedReplyId) {
-      nextCase.selectedReplyId = existing.selectedReplyId;
-    }
-    if (existing?.boostedReply) {
-      nextCase.boostedReply = existing.boostedReply;
+    if (inboundTextChanged) {
+      delete nextCase.assessment;
+      delete nextCase.selectedReplyId;
+      delete nextCase.boostedReply;
+      delete nextCase.agentPerformance;
+      delete nextCase.aiDurationMs;
+      delete nextCase.errorMessage;
     }
 
     this.cases.set(message.messageId, nextCase);
@@ -141,6 +221,7 @@ export class InMemoryLeadSink implements LeadSinkPort {
 
     delete nextCase.selectedReplyId;
     delete nextCase.boostedReply;
+    delete nextCase.agentPerformance;
     delete nextCase.aiDurationMs;
     delete nextCase.errorMessage;
 
@@ -433,6 +514,57 @@ function getAgentName(caseItem: CopilotCase): string {
   }
 
   return "Unassigned";
+}
+
+function buildAgentPerformance(caseItem: CopilotCase): AgentPerformance | undefined {
+  const agentMessages = caseItem.conversation.filter((message) => message.role === "agent");
+  const latestAgentMessage = agentMessages.at(-1);
+  if (!latestAgentMessage || !caseItem.assessment) {
+    return undefined;
+  }
+
+  const text = latestAgentMessage.text.toLowerCase();
+  const notes: string[] = [];
+  let score = 82;
+
+  if (caseItem.assessment.riskFlags.some((flag) => flag.toLowerCase().includes("agent"))) {
+    score -= 30;
+    notes.push("Agent conduct risk detected in the conversation.");
+  }
+  if (/(guarantee|guaranteed|100%|no risk|definitely)/i.test(latestAgentMessage.text)) {
+    score -= 18;
+    notes.push("Avoid absolute guarantees in medical tourism sales.");
+  }
+  if (/(doctor|assessment|photos|medical|consultation|safe|protocol|aftercare)/i.test(latestAgentMessage.text)) {
+    score += 8;
+    notes.push("Mentions clinical review or safety-related next steps.");
+  }
+  if (/(deposit|pay now|book now|limited|today only)/i.test(latestAgentMessage.text) && caseItem.assessment.analysis.leadTemperature !== "hot") {
+    score -= 12;
+    notes.push("Commercial pressure is early for the current lead temperature.");
+  }
+  if (text.length < 80) {
+    score -= 8;
+    notes.push("Response is short; it may need more context or empathy.");
+  }
+  if (/(understand|happy to help|of course|i can help|thank you|sorry)/i.test(latestAgentMessage.text)) {
+    score += 6;
+    notes.push("Uses an empathetic and service-oriented tone.");
+  }
+
+  const normalizedScore = Math.max(0, Math.min(100, Math.round(score)));
+  return {
+    score: normalizedScore,
+    label: performanceLabel(normalizedScore),
+    notes: notes.length > 0 ? notes.slice(0, 3) : ["Rules-compliant response with no obvious safety risks."]
+  };
+}
+
+function performanceLabel(score: number): AgentPerformance["label"] {
+  if (score >= 85) return "excellent";
+  if (score >= 70) return "good";
+  if (score >= 50) return "needs_attention";
+  return "risky";
 }
 
 function sameDate(isoDate: string, dateKey: string): boolean {

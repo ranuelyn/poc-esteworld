@@ -32,6 +32,7 @@ export class ProcessChatMessage {
       tenantId: message.tenantId,
       contactId: message.contactId,
       messageId: message.messageId,
+      sourceMessageText: message.text,
       leadTemperature: assessmentDraft.analysis.leadTemperature,
       urgencyScore: Math.max(1, Math.ceil(assessmentDraft.analysis.leadScore / 10)),
       intent: assessmentDraft.analysis.intent,

@@ -18,6 +18,7 @@ export interface CopilotCase {
   selectedReplyId?: string;
   appliedBoosts: string[];
   boostedReply?: string;
+  agentPerformance?: AgentPerformance;
   aiDurationMs?: number;
   errorMessage?: string;
   createdAt: string;
@@ -31,10 +32,17 @@ export interface ConversationMessage {
   createdAt: string;
 }
 
+export interface AgentPerformance {
+  score: number;
+  label: "excellent" | "good" | "needs_attention" | "risky";
+  notes: string[];
+}
+
 export interface LeadAssessment {
   tenantId: string;
   contactId: string;
   messageId: string;
+  sourceMessageText?: string;
   analysis: {
     language: string;
     treatment: string;
@@ -99,6 +107,20 @@ export interface SendLeadPayload {
   treatment: string;
   message_id: string;
   text: string;
+  scenario_id?: string;
+}
+
+export interface TestScenario {
+  id: string;
+  title: string;
+  personality: string;
+  personalityLabel: string;
+  patientName: string;
+  language: string;
+  treatment: string;
+  seedOpening: string;
+  persona: string;
+  maxTurns: number;
 }
 
 export async function sendLeadMessage(payload: SendLeadPayload) {
@@ -145,6 +167,24 @@ export async function appendConversationMessage(
 
 export async function getAdminMetrics() {
   return request<AdminMetrics>("/api/admin/metrics");
+}
+
+export async function listTestScenarios() {
+  return request<{ scenarios: TestScenario[] }>("/api/test/scenarios");
+}
+
+export async function generateTestLeadReply(messageId: string) {
+  return request<{ message: string; shouldEnd: boolean; mood: string }>(
+    `/api/test/cases/${messageId}/lead-reply`,
+    { method: "POST" }
+  );
+}
+
+export async function generateTestScenarioOpening(scenarioId: string) {
+  return request<{
+    scenario: TestScenario;
+    opening: { message: string; shouldEnd: boolean; mood: string };
+  }>(`/api/test/scenarios/${scenarioId}/opening`, { method: "POST" });
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

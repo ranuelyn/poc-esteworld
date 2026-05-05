@@ -51,6 +51,8 @@ export interface LeadAssessment {
   tenantId: string;
   contactId: string;
   messageId: string;
+  /** Worker’ın analiz ettiği ham lead metni; API belleği sıfırlandığında UI’da intent yerine gösterilir. */
+  sourceMessageText?: string;
   analysis: MessageAnalysis;
   nextBestAction: NextBestAction;
   suggestedReplies: SuggestedReply[];
