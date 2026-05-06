@@ -38,8 +38,8 @@ ollama pull bge-m3
 # .env dosyasında gemma4:e2b kullanılmış ama resmi repo'da gemma:2b veya gemma2:2b var. Güvenli olması için gemma:2b çekiyoruz.
 ollama pull gemma:2b 
 
-echo "[6/8] 🛠️ PM2 ve Localtunnel global olarak kuruluyor..."
-sudo npm install -g pm2 localtunnel
+echo "[6/8] 🛠️ PM2, Localtunnel ve Serve global olarak kuruluyor..."
+sudo npm install -g pm2 localtunnel serve
 
 echo "[7/8] 📦 Proje bağımlılıkları (npm install) kuruluyor..."
 npm install
@@ -57,7 +57,7 @@ npm run build
 
 pm2 start npm --name "api" -- run dev:api
 pm2 start npm --name "worker" -- run dev:worker
-pm2 start npx --name "web" -- serve -s dist-web -l 5173
+pm2 start serve --name "web" -- -s dist-web -l 5173
 
 echo "=================================================="
 echo "✅ Kurulum Tamamlandı! Tüm servisler (API, Web, Worker, Redis, Qdrant, Ollama) arka planda çalışıyor."
