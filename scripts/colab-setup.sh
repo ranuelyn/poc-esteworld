@@ -62,7 +62,7 @@ pm2 delete all || true
 
 pm2 start npm --name "api" -- run dev:api
 pm2 start npm --name "worker" -- run dev:worker
-pm2 start serve --name "web" -- -s dist-web -l 5173
+pm2 start npm --name "web" -- run dev:web
 
 echo "=================================================="
 echo "✅ Kurulum Tamamlandı! Tüm servisler (API, Web, Worker, Redis, Qdrant, Ollama) arka planda çalışıyor."
