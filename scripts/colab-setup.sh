@@ -53,6 +53,7 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
     sed -i 's/OLLAMA_LLM_MODEL=.*/OLLAMA_LLM_MODEL=gemma:2b/g' .env
     sed -i 's/OLLAMA_EMBEDDING_MODEL=.*/OLLAMA_EMBEDDING_MODEL=nomic-embed-text/g' .env
+    sed -i 's/QDRANT_VECTOR_SIZE=.*/QDRANT_VECTOR_SIZE=768/g' .env
 fi
 
 # Arayüzü derleyip production (stabil) modda servis edelim
