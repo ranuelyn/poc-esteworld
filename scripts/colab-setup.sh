@@ -48,13 +48,16 @@ echo "[8/8] 🚀 Proje servisleri arka planda başlatılıyor..."
 # Ortam değişkenlerini ayarlamak için .env kopyası oluşturalım
 if [ ! -f ".env" ]; then
     cp .env.example .env
-    # Eğer model adı Colab'da farklı indiyse .env'yi güncelleyelim
     sed -i 's/OLLAMA_LLM_MODEL=.*/OLLAMA_LLM_MODEL=gemma:2b/g' .env
 fi
 
+# Arayüzü derleyip production (stabil) modda servis edelim
+echo "Arayüz derleniyor (Bu biraz zaman alabilir)..."
+npm run build
+
 pm2 start npm --name "api" -- run dev:api
 pm2 start npm --name "worker" -- run dev:worker
-pm2 start npm --name "web" -- run dev:web
+pm2 start npx --name "web" -- serve -s dist-web -l 5173
 
 echo "=================================================="
 echo "✅ Kurulum Tamamlandı! Tüm servisler (API, Web, Worker, Redis, Qdrant, Ollama) arka planda çalışıyor."
