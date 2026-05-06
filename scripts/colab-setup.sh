@@ -33,9 +33,9 @@ nohup ollama serve > ollama.log 2>&1 &
 sleep 5 # Ollama'nın tamamen ayağa kalkması için biraz bekliyoruz.
 
 echo "[5/8] 📥 Yapay Zeka Modelleri indiriliyor (Bu işlem Colab internetiyle çok hızlı sürecektir)..."
-# .env.example veya .env içindeki modelleri çekebiliriz, varsayılan olarak bge-m3 ve gemma:2b çekelim
-ollama pull bge-m3
-# .env dosyasında gemma4:e2b kullanılmış ama resmi repo'da gemma:2b veya gemma2:2b var. Güvenli olması için gemma:2b çekiyoruz.
+# bge-m3 modeli Colab üzerinde NaN hatası verdiği için standart nomic-embed-text modelini kullanıyoruz
+ollama pull nomic-embed-text
+# Güvenli olması için gemma:2b çekiyoruz.
 ollama pull gemma:2b 
 
 echo "[6/8] 🛠️ PM2, Serve ve Cloudflared global olarak kuruluyor..."
@@ -51,6 +51,7 @@ echo "[8/8] 🚀 Proje servisleri arka planda başlatılıyor..."
 if [ ! -f ".env" ]; then
     cp .env.example .env
     sed -i 's/OLLAMA_LLM_MODEL=.*/OLLAMA_LLM_MODEL=gemma:2b/g' .env
+    sed -i 's/OLLAMA_EMBEDDING_MODEL=.*/OLLAMA_EMBEDDING_MODEL=nomic-embed-text/g' .env
 fi
 
 # Arayüzü derleyip production (stabil) modda servis edelim
