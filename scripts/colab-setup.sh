@@ -57,6 +57,9 @@ fi
 echo "Arayüz derleniyor (Bu biraz zaman alabilir)..."
 npm run build
 
+# Eski PM2 süreçlerini temizle ki port çakışması olmasın (Çok önemli!)
+pm2 delete all || true
+
 pm2 start npm --name "api" -- run dev:api
 pm2 start npm --name "worker" -- run dev:worker
 pm2 start serve --name "web" -- -s dist-web -l 5173
