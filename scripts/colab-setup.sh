@@ -57,6 +57,10 @@ fi
 echo "Arayüz derleniyor (Bu biraz zaman alabilir)..."
 npm run build
 
+# Veritabanını (Qdrant) test verileriyle dolduralım (AI'ın referans alabilmesi için)
+echo "Test verileri Qdrant vektör veritabanına yükleniyor..."
+npm run seed
+
 # Eski PM2 süreçlerini temizle ki port çakışması olmasın (Çok önemli!)
 pm2 delete all || true
 
