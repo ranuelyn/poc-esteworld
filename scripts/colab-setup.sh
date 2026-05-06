@@ -9,9 +9,9 @@ echo "=================================================="
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "[1/8] 📦 Node.js 20 ve Redis kuruluyor..."
+echo "[1/8] 📦 Node.js 20, Redis ve Zstd kuruluyor..."
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs redis-server
+sudo apt-get install -y nodejs redis-server zstd
 
 echo "[2/8] 🗄️ Redis servisi başlatılıyor..."
 sudo service redis-server start
@@ -62,7 +62,7 @@ echo ""
 echo "🌐 DIŞARIDAN ERİŞİM İÇİN SON ADIM:"
 echo "Google Colab makinesine kendi bilgisayarından bağlanabilmek için aşağıdaki komutu Colab'de yeni bir kod hücresinde çalıştır:"
 echo ""
-echo "!lt --port 5173"
+echo "!npx localtunnel --port 5173"
 echo ""
 echo "Çıkan linke tıkladığında arayüze erişebilirsin. (Uyarı: Localtunnel şifre sorarsa ekranda yazan IP adresini girmen gerekir)"
 echo "=================================================="
