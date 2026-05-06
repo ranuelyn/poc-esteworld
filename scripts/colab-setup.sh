@@ -17,12 +17,13 @@ echo "[2/8] 🗄️ Redis servisi başlatılıyor..."
 sudo service redis-server start
 
 echo "[3/8] 🧠 Qdrant (Vektör DB) indiriliyor ve başlatılıyor..."
-if [ ! -f "qdrant" ]; then
-    wget -q https://github.com/qdrant/qdrant/releases/latest/download/qdrant-x86_64-unknown-linux-gnu.tar.gz
-    tar -xzf qdrant-x86_64-unknown-linux-gnu.tar.gz
-    rm qdrant-x86_64-unknown-linux-gnu.tar.gz
-fi
+# Varsa eski qdrant sürecini sonlandır ki port çakışmasın
+pkill -f qdrant || true
+wget -q -O qdrant-x86_64-unknown-linux-gnu.tar.gz https://github.com/qdrant/qdrant/releases/download/v1.8.2/qdrant-x86_64-unknown-linux-gnu.tar.gz
+tar -xzf qdrant-x86_64-unknown-linux-gnu.tar.gz
 nohup ./qdrant > qdrant.log 2>&1 &
+# Qdrant'ın tamamen başlaması için 3 saniye bekleyelim
+sleep 3
 echo "Qdrant arka planda çalışıyor."
 
 echo "[4/8] 🤖 Ollama (Yapay Zeka Motoru) kuruluyor..."
