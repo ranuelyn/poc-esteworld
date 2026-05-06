@@ -38,8 +38,10 @@ ollama pull bge-m3
 # .env dosyasında gemma4:e2b kullanılmış ama resmi repo'da gemma:2b veya gemma2:2b var. Güvenli olması için gemma:2b çekiyoruz.
 ollama pull gemma:2b 
 
-echo "[6/8] 🛠️ PM2, Localtunnel ve Serve global olarak kuruluyor..."
-sudo npm install -g pm2 localtunnel serve
+echo "[6/8] 🛠️ PM2, Serve ve Cloudflared global olarak kuruluyor..."
+sudo npm install -g pm2 serve
+wget -q -c -nc https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+chmod +x cloudflared-linux-amd64
 
 echo "[7/8] 📦 Proje bağımlılıkları (npm install) kuruluyor..."
 npm install
@@ -65,7 +67,7 @@ echo ""
 echo "🌐 DIŞARIDAN ERİŞİM İÇİN SON ADIM:"
 echo "Google Colab makinesine kendi bilgisayarından bağlanabilmek için aşağıdaki komutu Colab'de yeni bir kod hücresinde çalıştır:"
 echo ""
-echo "!npx localtunnel --port 5173"
+echo "!./cloudflared-linux-amd64 tunnel --url http://localhost:5173"
 echo ""
-echo "Çıkan linke tıkladığında arayüze erişebilirsin. (Uyarı: Localtunnel şifre sorarsa ekranda yazan IP adresini girmen gerekir)"
+echo "Çıktıda 'https://.....trycloudflare.com' şeklinde bir link göreceksin. O linke tıklayarak arayüze doğrudan girebilirsin!"
 echo "=================================================="
