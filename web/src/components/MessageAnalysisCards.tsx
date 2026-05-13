@@ -1,4 +1,5 @@
 import type { CopilotCase, LeadAssessment } from "../api/client";
+import { FunnelStageIndicator } from "./FunnelStageIndicator";
 
 export function MessageAnalysisCards({
   assessment,
@@ -54,6 +55,7 @@ export function MessageAnalysisCards({
           ))}
         </ul>
       ) : null}
+      <FunnelStageIndicator stage={assessment?.funnelStage} />
     </section>
   );
 }

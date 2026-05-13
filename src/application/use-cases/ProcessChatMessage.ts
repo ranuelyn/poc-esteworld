@@ -36,6 +36,7 @@ export class ProcessChatMessage {
       leadTemperature: assessmentDraft.analysis.leadTemperature,
       urgencyScore: Math.max(1, Math.ceil(assessmentDraft.analysis.leadScore / 10)),
       intent: assessmentDraft.analysis.intent,
+      ...(assessmentDraft.funnelStage ? { funnelStage: assessmentDraft.funnelStage } : {}),
       suggestedReply:
         assessmentDraft.suggestedReplies.find((reply) => reply.isRecommended)?.text ??
         assessmentDraft.suggestedReplies[0]?.text ??

@@ -8,6 +8,7 @@ export interface LeadAssessmentDraft {
   suggestedReplies: LeadAssessment["suggestedReplies"];
   salesBoosts: LeadAssessment["salesBoosts"];
   silencePlan: LeadAssessment["silencePlan"];
+  funnelStage?: LeadAssessment["funnelStage"];
   followUpQuestions: string[];
   riskFlags: string[];
 }

@@ -1,6 +1,7 @@
 import { EnqueueWazzupMessage } from "./application/use-cases/EnqueueWazzupMessage.js";
 import { env } from "./config/env.js";
 import { createServer } from "./infrastructure/http/server.js";
+import { esteworldPatientStore } from "./infrastructure/mock/EsteworldPatientStore.js";
 import { BullMqChatQueue } from "./infrastructure/queue/bullmq.js";
 import { logger } from "./shared/logger.js";
 
@@ -10,6 +11,8 @@ const app = createServer(enqueueWazzupMessage);
 
 const server = app.listen(env.PORT, () => {
   logger.info({ port: env.PORT }, "AI Sales Assistant API started");
+  // Load Esteworld patient data in background (non-blocking)
+  void esteworldPatientStore.loadFromCsv().catch(() => {});
 });
 
 async function shutdown(signal: string) {

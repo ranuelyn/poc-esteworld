@@ -681,3 +681,495 @@ h2 {
     max-height: none;
   }
 }
+
+/* ─── Sidebar Actions ─── */
+
+.sidebar-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sidebar-actions .demo-btn {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-color: #6366f1;
+  color: #fff;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.sidebar-actions .demo-btn:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+/* ─── Funnel Stage Card ─── */
+
+.funnel-stage-card {
+  background: #fafaf9;
+  border: 1px solid #e2ded4;
+  border-radius: 10px;
+  margin-top: 14px;
+  padding: 16px;
+}
+
+.funnel-stage-header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.funnel-stage-badge {
+  border-radius: 999px;
+  color: #fff;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  text-transform: uppercase;
+}
+
+.funnel-stage-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.funnel-progress-bar {
+  background: #e5e7eb;
+  border-radius: 999px;
+  height: 6px;
+  margin: 10px 0 14px;
+  position: relative;
+}
+
+.funnel-progress-fill {
+  border-radius: 999px;
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.3s ease;
+}
+
+.funnel-dot {
+  background: #fff;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  height: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  transition: all 0.3s ease;
+}
+
+.funnel-dot.active {
+  background: #fff;
+  border-width: 2px;
+}
+
+.funnel-dot.current {
+  background: #fff;
+  border-width: 3px;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  height: 14px;
+  width: 14px;
+}
+
+.funnel-milestone {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.funnel-milestone-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.funnel-milestone-text {
+  color: #334155;
+}
+
+/* ─── Demo Patient Picker ─── */
+
+.demo-picker {
+  border: 1px solid #e2ded4;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.demo-picker-header {
+  align-items: center;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.demo-picker-header h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.demo-picker-header button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  height: 26px;
+  width: 26px;
+}
+
+.demo-picker-filters {
+  border-bottom: 1px solid #e2ded4;
+  padding: 12px;
+}
+
+.demo-search-input {
+  background: #fff;
+  border: 1px solid #ddd6c8;
+  border-radius: 8px;
+  color: #111827;
+  font-size: 13px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.demo-interest-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.demo-interest-filters button {
+  background: #f5f1ea;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+.demo-interest-filters button.active {
+  background: #0f172a;
+  color: #fff;
+}
+
+.demo-patient-list {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.demo-patient-row {
+  align-items: center;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f0ece4;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.demo-patient-row:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.demo-patient-main {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.demo-patient-icon {
+  font-size: 18px;
+}
+
+.demo-patient-info {
+  display: grid;
+  gap: 2px;
+}
+
+.demo-patient-info strong {
+  font-size: 13px;
+}
+
+.demo-patient-meta {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.demo-load-badge {
+  background: #f1f5f9;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.demo-loading-badge {
+  animation: pulse-badge 1.2s infinite;
+  background: #6366f1;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ─── Qdrant Viewer ─── */
+
+.qdrant-viewer {
+  margin: 0 auto;
+  max-width: 1120px;
+}
+
+.qdrant-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.qdrant-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.qdrant-actions button {
+  background: #fffdf8;
+  border: 1px solid #ded8cc;
+  border-radius: 8px;
+  color: #1f2937;
+  cursor: pointer;
+  padding: 10px 14px;
+}
+
+.qdrant-actions button:hover {
+  border-color: #0f172a;
+}
+
+.qdrant-actions .danger-btn {
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.qdrant-actions .danger-btn:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.qdrant-info-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 24px;
+}
+
+.qdrant-stat-card {
+  background: #fffdf8;
+  border: 1px solid #e2ded4;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+}
+
+.qdrant-stat-card span {
+  color: #64748b;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.qdrant-stat-card strong {
+  font-size: 22px;
+}
+
+.qdrant-aggregates {
+  background: #fffdf8;
+  border: 1px solid #e2ded4;
+  border-radius: 14px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 24px;
+  padding: 20px;
+}
+
+.qdrant-agg-section h4 {
+  color: #64748b;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.qdrant-tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.qdrant-tag {
+  border: 1px solid #e2ded4;
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.qdrant-points-header {
+  margin-bottom: 12px;
+}
+
+.qdrant-points-header h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.qdrant-empty {
+  background: #fffdf8;
+  border: 1px solid #e2ded4;
+  border-radius: 14px;
+  padding: 40px;
+  text-align: center;
+}
+
+.qdrant-empty code {
+  background: #f1f5f9;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 3px 6px;
+}
+
+.qdrant-points-list {
+  display: grid;
+  gap: 2px;
+}
+
+.qdrant-point-row {
+  background: #fffdf8;
+  border: 1px solid #e2ded4;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.qdrant-point-summary {
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  text-align: left;
+  width: 100%;
+}
+
+.qdrant-point-summary:hover {
+  background: #f8fafc;
+}
+
+.qdrant-point-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.qdrant-point-id {
+  color: #94a3b8;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+}
+
+.qdrant-point-treatment {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.qdrant-point-outcome,
+.qdrant-point-temp {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.qdrant-point-lang {
+  background: #f1f5f9;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.qdrant-expand-icon {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.qdrant-point-detail {
+  border-top: 1px solid #e2ded4;
+  padding: 16px;
+}
+
+.qdrant-detail-section {
+  margin-bottom: 14px;
+}
+
+.qdrant-detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.qdrant-detail-section label {
+  color: #64748b;
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.qdrant-detail-section p {
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.qdrant-dialogue {
+  background: #f8fafc;
+  border: 1px solid #e2ded4;
+  border-radius: 8px;
+  color: #334155;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  max-height: 400px;
+  overflow: auto;
+  padding: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 1180px) {
+  .qdrant-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .qdrant-aggregates {
+    grid-template-columns: 1fr;
+  }
+}

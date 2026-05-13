@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import { ProcessChatMessage } from "../../application/use-cases/ProcessChatMessage.js";
 import { env } from "../../config/env.js";
 import { HttpLeadSink } from "../mock/InMemoryLeadSink.js";
+import { GeminiLlmClient } from "../gemini/GeminiLlmClient.js";
 import { OllamaEmbeddingClient } from "../ollama/OllamaEmbeddingClient.js";
 import { OllamaLlmClient } from "../ollama/OllamaLlmClient.js";
 import { QdrantRagRepository } from "../qdrant/QdrantRagRepository.js";
@@ -10,10 +11,16 @@ import { logger } from "../../shared/logger.js";
 
 const leadSink = new HttpLeadSink();
 
+const llm = env.LLM_PROVIDER === "gemini" && env.GEMINI_API_KEY
+  ? new GeminiLlmClient()
+  : new OllamaLlmClient();
+
+logger.info({ provider: env.LLM_PROVIDER === "gemini" && env.GEMINI_API_KEY ? "gemini" : "ollama" }, "LLM provider selected");
+
 const processChatMessage = new ProcessChatMessage(
   new OllamaEmbeddingClient(),
   new QdrantRagRepository(),
-  new OllamaLlmClient(),
+  llm,
   leadSink,
   env.RAG_TOP_K
 );

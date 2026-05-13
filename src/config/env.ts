@@ -23,7 +23,8 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().optional().transform((value) => value || undefined),
   GEMINI_MODEL: z.string().min(1).default("gemini-3.1-flash-lite-preview"),
   GEMINI_RETRY_MAX_ATTEMPTS: z.coerce.number().int().positive().default(4),
-  GEMINI_RETRY_BASE_DELAY_MS: z.coerce.number().int().positive().default(1500)
+  GEMINI_RETRY_BASE_DELAY_MS: z.coerce.number().int().positive().default(1500),
+  LLM_PROVIDER: z.enum(["ollama", "gemini"]).default("ollama")
 });
 
 export const env = envSchema.parse(process.env);

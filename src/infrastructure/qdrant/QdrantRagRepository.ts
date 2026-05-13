@@ -138,4 +138,90 @@ export class QdrantRagRepository implements RagRepositoryPort {
       sales_notes: dialogue.salesNotes
     };
   }
+
+  // --- Qdrant Viewer helpers ---
+
+  async getCollectionInfo(): Promise<{
+    exists: boolean;
+    pointCount: number;
+    vectorSize: number;
+    status: string;
+  }> {
+    try {
+      const collections = await this.client.getCollections();
+      const exists = collections.collections.some(
+        (c) => c.name === this.collectionName
+      );
+      if (!exists) {
+        return { exists: false, pointCount: 0, vectorSize: this.vectorSize, status: "not_created" };
+      }
+
+      const info = await this.client.getCollection(this.collectionName);
+      return {
+        exists: true,
+        pointCount: info.points_count ?? 0,
+        vectorSize: this.vectorSize,
+        status: String(info.status ?? "unknown"),
+      };
+    } catch {
+      return { exists: false, pointCount: 0, vectorSize: this.vectorSize, status: "error" };
+    }
+  }
+
+  async scrollPoints(limit = 50, offset?: string | number): Promise<{
+    points: Array<{
+      id: string;
+      payload: SalesDialoguePayload | null;
+      dialoguePreview: string;
+    }>;
+    nextOffset?: string | number;
+  }> {
+    try {
+      const collections = await this.client.getCollections();
+      const exists = collections.collections.some(
+        (c) => c.name === this.collectionName
+      );
+      if (!exists) {
+        return { points: [] };
+      }
+
+      const scrollParams: { limit: number; with_payload: true; with_vector: false; offset?: string | number | null } = {
+        limit,
+        with_payload: true,
+        with_vector: false,
+      };
+      if (offset !== undefined) {
+        scrollParams.offset = offset;
+      }
+      const result = await this.client.scroll(this.collectionName, scrollParams);
+
+      const points = result.points.map((p) => {
+        const payload = p.payload as SalesDialoguePayload | null;
+        return {
+          id: String(p.id),
+          payload,
+          dialoguePreview: payload?.dialogue_text
+            ? payload.dialogue_text.slice(0, 300)
+            : "(no dialogue text)",
+        };
+      });
+
+      const npo = result.next_page_offset;
+      return {
+        points,
+        ...(npo != null ? { nextOffset: typeof npo === "object" ? String(npo) : npo } : {}),
+      };
+    } catch {
+      return { points: [] };
+    }
+  }
+
+  async deleteCollection(): Promise<boolean> {
+    try {
+      await this.client.deleteCollection(this.collectionName);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

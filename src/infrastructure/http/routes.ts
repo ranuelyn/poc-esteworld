@@ -10,6 +10,8 @@ import {
   testScenarios
 } from "../gemini/GeminiLeadSimulator.js";
 import { inMemoryLeadSink } from "../mock/InMemoryLeadSink.js";
+import { esteworldPatientStore } from "../mock/EsteworldPatientStore.js";
+import { QdrantRagRepository } from "../qdrant/QdrantRagRepository.js";
 import { ValidationAppError } from "../../shared/errors.js";
 
 const wazzupPayloadSchema = z
@@ -275,6 +277,129 @@ export function createRoutes(enqueueWazzupMessage: EnqueueWazzupMessage): Router
 
   router.get("/api/admin/metrics", (_req: Request, res: Response) => {
     res.status(200).json(inMemoryLeadSink.getAdminMetrics());
+  });
+
+  // --- Demo Patient Endpoints ---
+
+  router.get("/api/demo/patients", (req: Request, res: Response) => {
+    const query = typeof req.query.q === "string" ? req.query.q : undefined;
+    const limit = typeof req.query.limit === "string" ? Number(req.query.limit) : 100;
+
+    if (!esteworldPatientStore.isLoaded()) {
+      res.status(200).json({ patients: [], loaded: false });
+      return;
+    }
+
+    const patients = query
+      ? esteworldPatientStore.searchPatients(query, limit)
+      : esteworldPatientStore.listSummaries(limit);
+
+    res.status(200).json({
+      patients,
+      loaded: true,
+      total: esteworldPatientStore.totalPatients(),
+    });
+  });
+
+  router.post("/api/demo/load-patient", async (req: Request, res: Response, next) => {
+    try {
+      const { patientId } = z.object({ patientId: z.string().min(1) }).parse(req.body);
+      const record = esteworldPatientStore.getPatient(patientId);
+      if (!record) {
+        res.status(404).json({ error: `Patient ${patientId} not found.` });
+        return;
+      }
+
+      // Filter usable messages
+      const usableMessages = record.messages.filter((m) => {
+        const text = m.text.trim();
+        return text.length >= 2 && !/^[a-f0-9-]+\.(jpeg|jpg|png|gif|mp4|pdf|webp)$/i.test(text);
+      });
+
+      // Take the last N messages for display as context
+      const DISPLAY_WINDOW = 15;
+      const displayMessages = usableMessages.slice(-DISPLAY_WINDOW);
+
+      const contactId = `whatsapp:esteworld-${record.patientId}`;
+      const tenantId = "esteworld-istanbul";
+      const baseTimestamp = Date.now();
+      const messageIds: string[] = [];
+
+      // Insert each display message as its own chat bubble (context only, no AI trigger)
+      for (let i = 0; i < displayMessages.length; i++) {
+        const msg = displayMessages[i]!;
+        const messageId = `esteworld-${record.patientId}-${baseTimestamp}-${i}`;
+        messageIds.push(messageId);
+
+        const chatMsg: ChatMessage = {
+          tenantId,
+          clinicName: "Esteworld Istanbul",
+          channel: "whatsapp",
+          contactId,
+          messageId,
+          patientName: record.patientName,
+          language: "English (UK)",
+          treatment: record.interest,
+          text: msg.text.trim(),
+          receivedAt: msg.timestamp || new Date(baseTimestamp + i * 1000).toISOString(),
+        };
+
+        inMemoryLeadSink.upsertMessage(chatMsg);
+      }
+
+      // Return without AI analysis — user will type a test message in the UI
+      // which triggers the real RAG pipeline (embed → search → LLM)
+      res.status(200).json({
+        accepted: true,
+        messageId: messageIds[messageIds.length - 1],
+        totalMessages: usableMessages.length,
+        displayedMessages: displayMessages.length,
+        hint: "Context loaded. Type a new message in the chat to test RAG pipeline.",
+        patient: {
+          patientId: record.patientId,
+          patientName: record.patientName,
+          interest: record.interest,
+          value: record.value,
+          messageCount: record.messageCount,
+          agentNames: record.agentNames,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // --- Qdrant Viewer Endpoints ---
+
+  const qdrantRepo = new QdrantRagRepository();
+
+  router.get("/api/qdrant/info", async (_req: Request, res: Response) => {
+    try {
+      const info = await qdrantRepo.getCollectionInfo();
+      res.status(200).json(info);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  router.get("/api/qdrant/points", async (req: Request, res: Response) => {
+    try {
+      const limit = typeof req.query.limit === "string" ? Math.min(Number(req.query.limit), 100) : 50;
+      const offset = typeof req.query.offset === "string" ? req.query.offset : undefined;
+      const result = await qdrantRepo.scrollPoints(limit, offset);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
+  });
+
+  router.delete("/api/qdrant/collection", async (_req: Request, res: Response) => {
+    try {
+      const deleted = await qdrantRepo.deleteCollection();
+      res.status(200).json({ deleted });
+    } catch (error) {
+      res.status(500).json({ error: String(error) });
+    }
   });
 
   return router;

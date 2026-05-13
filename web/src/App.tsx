@@ -17,14 +17,16 @@ import {
 } from "./api/client";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { ConversationComposer } from "./components/ConversationComposer";
+import { DemoPatientPicker } from "./components/DemoPatientPicker";
 import { LeadSimulator } from "./components/LeadSimulator";
 import { MessageAnalysisCards } from "./components/MessageAnalysisCards";
 import { NextBestActionCard } from "./components/NextBestActionCard";
 import { SalesBoostPanel } from "./components/SalesBoostPanel";
 import { SilencePlan } from "./components/SilencePlan";
 import { SuggestedReplies } from "./components/SuggestedReplies";
+import { QdrantViewer } from "./components/QdrantViewer";
 
-type ViewMode = "copilot" | "admin";
+type ViewMode = "copilot" | "admin" | "qdrant";
 
 export function App() {
   const [mode, setMode] = useState<ViewMode>("copilot");
@@ -38,6 +40,7 @@ export function App() {
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>();
   const [error, setError] = useState<string>();
   const [metrics, setMetrics] = useState<AdminMetrics>();
+  const [isDemoPickerOpen, setIsDemoPickerOpen] = useState(false);
 
   const activeCase = useMemo(
     () => cases.find((caseItem) => caseItem.message.messageId === activeMessageId) ?? cases[0],
@@ -264,6 +267,9 @@ export function App() {
           <button className={mode === "admin" ? "active" : ""} onClick={() => setMode("admin")}>
             Admin Dashboard
           </button>
+          <button className={mode === "qdrant" ? "active" : ""} onClick={() => setMode("qdrant")}>
+            🔍 Qdrant RAG
+          </button>
           <button
             className={`test-button ${isTestRunning ? "test-running" : ""}`}
             disabled={isTestRunning}
@@ -285,7 +291,9 @@ export function App() {
         </div>
       </nav>
 
-      {mode === "admin" ? (
+      {mode === "qdrant" ? (
+        <QdrantViewer />
+      ) : mode === "admin" ? (
         <AdminDashboard metrics={metrics} />
       ) : (
         <main className={`copilot-layout ${activeCase ? "" : "no-active-chat"}`}>
@@ -295,10 +303,29 @@ export function App() {
                 <p className="eyebrow">Wazzup</p>
                 <h2>Chats</h2>
               </div>
-              <button type="button" onClick={() => setIsCreatingChat(true)}>
-                New chat
-              </button>
+              <div className="sidebar-actions">
+                <button type="button" className="demo-btn" onClick={() => { setIsDemoPickerOpen(!isDemoPickerOpen); setIsCreatingChat(false); }}>
+                  📋 Real Case
+                </button>
+                <button type="button" onClick={() => { setIsCreatingChat(true); setIsDemoPickerOpen(false); }}>
+                  New chat
+                </button>
+              </div>
             </div>
+            {isDemoPickerOpen ? (
+              <DemoPatientPicker
+                disabled={isSubmitting}
+                onLoaded={(messageId) => {
+                  setActiveMessageId(messageId);
+                  setIsDemoPickerOpen(false);
+                  void refreshCases();
+                  void pollCaseUntilReady(messageId).then((ready) => {
+                    setCases((current) => upsertCase(current, ready));
+                  });
+                }}
+                onCancel={() => setIsDemoPickerOpen(false)}
+              />
+            ) : null}
             {isCreatingChat ? (
               <LeadSimulator
                 disabled={isSubmitting}

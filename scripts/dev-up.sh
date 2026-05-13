@@ -59,6 +59,12 @@ if ! curl -fsS http://localhost:11434/api/tags >/dev/null 2>&1; then
 fi
 wait_http "Ollama" "http://localhost:11434/api/tags" 120
 
+echo "[step] Checking Qdrant data"
+QDRANT_COUNT=$(curl -s "http://localhost:6333/collections/sales_dialogues" | grep -o '"points_count":[0-9]*' | cut -d: -f2 || echo "0")
+if [[ "$QDRANT_COUNT" == "0" ]]; then
+  echo "[info] Qdrant is empty. You should run 'npm run seed' to load Esteworld patient data."
+fi
+
 echo "[step] Starting application processes"
 start_process "api" "npm run dev:api"
 start_process "worker" "npm run dev:worker"
@@ -69,12 +75,24 @@ wait_http "Web" "http://localhost:5173" 90
 
 cat <<EOF
 
-All services are up.
-- Web:   http://localhost:5173
-- API:   http://localhost:3000
-- Logs:  $LOG_DIR
+==================================================
+🚀 Esteworld AI Sales Assistant is Ready!
+==================================================
 
-Useful commands:
-- Stop all:   ./scripts/dev-down.sh
-- Status:     ./scripts/dev-status.sh
+🌐 Interfaces:
+- Web UI:      http://localhost:5173
+- API Health:  http://localhost:3000/health
+- Logs:        $LOG_DIR
+
+📋 How to Test:
+1. Open the Web UI.
+2. Click "🔍 Qdrant RAG" tab to verify Esteworld data is loaded.
+3. If empty, run: npm run seed
+4. Go to "Sales Copilot" and click "📋 Real Case" to load a patient.
+5. Watch Gemma (Ollama) analyze the funnel and suggest replies.
+
+🛠️ Management:
+- Status:      ./scripts/dev-status.sh
+- Stop all:    ./scripts/dev-down.sh
+==================================================
 EOF

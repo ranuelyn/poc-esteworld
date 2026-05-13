@@ -47,6 +47,12 @@ export interface SilencePlanStep {
   action: string;
 }
 
+export interface FunnelStage {
+  stage: number;        // 1-11 per Esteworld funnel
+  label: string;        // "Lead", "Treatment Interest", "Photo Request", etc.
+  nextMilestone: string; // What needs to happen to advance
+}
+
 export interface LeadAssessment {
   tenantId: string;
   contactId: string;
@@ -58,6 +64,7 @@ export interface LeadAssessment {
   suggestedReplies: SuggestedReply[];
   salesBoosts: SalesBoost[];
   silencePlan: SilencePlanStep[];
+  funnelStage?: FunnelStage | undefined;
   leadTemperature: LeadTemperature;
   urgencyScore: number;
   intent: string;

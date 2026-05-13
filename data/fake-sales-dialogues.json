@@ -3,66 +3,77 @@
     "id": "11111111-1111-4111-8111-111111111111",
     "tenantId": "esteworld-istanbul",
     "clinicName": "Esteworld Istanbul",
-    "language": "tr",
-    "treatment": "Saç ekimi",
+    "language": "en",
+    "treatment": "Hair Transplant (FUE/Sapphire)",
     "outcome": "successful",
     "leadTemperature": "hot",
-    "dialogueText": "Hasta: Merhaba, saç ekimi fiyatı ve müsaitlik almak istiyorum. Temsilci: Merhaba, memnuniyetle yardımcı olurum. Saç dökülme alanınızı değerlendirmek için birkaç fotoğraf rica edebilir miyim? Doktor ön değerlendirmesi sonrası greft planı ve paket detayını paylaşabiliriz. Hasta: Fotoğrafları gönderebilirim, bu ay içinde gelmek istiyorum. Temsilci: Harika, bu ay için birkaç uygun tarihimiz var. Fotoğraflardan sonra doktorumuzun önerdiği planı ve transfer/konaklama dahil seçenekleri paylaşacağım.",
-    "salesNotes": "Hasta yakın tarih ve paket bilgisi sordu; fotoğraf istemek ve uygun tarih vurgusu dönüşümü artırdı."
+    "dialogueText": "Patient: Hi, I got a quote from you for my hair transplant. I wanna go ahead but I need to book my flights so is the 19th of November available?\nRepresentative: Hi Lee, I hope you are okay. Let me check and get back to you with more details. Please give me a minute.\nRepresentative: The 19th of November is available for your operation. If you choose this date, your schedule will be as follows:\n- 18th of November: Arrival\n- 19th of November: Operation date\n- 20th of November: Check-up, first wash, and return date\nRepresentative: I'm creating your reservation right now, would you like to confirm it today?\nPatient: Ok I'll see if I can book a flight for 18th when I get home from work and go from there.\nRepresentative: Perfect! I will be waiting for your message.\nRepresentative: Hi again, I hope you are okay. Have you had the chance to check the flight tickets?\nPatient: Yes mate just need to sort flights and I'm good to go.",
+    "salesNotes": "Hot lead with fixed travel plans. Quick availability check and clear schedule presentation moved the patient from inquiry to booking. Follow-up on flights was timely and non-pushy."
   },
   {
     "id": "22222222-2222-4222-8222-222222222222",
     "tenantId": "esteworld-istanbul",
     "clinicName": "Esteworld Istanbul",
     "language": "en",
-    "treatment": "Dental veneers",
+    "treatment": "Dental Veneers (Zirconium)",
     "outcome": "successful",
     "leadTemperature": "warm",
-    "dialogueText": "Patient: I am comparing veneer prices in Turkey. Representative: I can help you compare safely. To avoid giving a misleading quote, could you share close-up smile photos and tell us how many teeth you are considering? Our dentist can review them and suggest a plan. Patient: I need 16 veneers and can travel next month. Representative: Perfect. After the dentist review, I will send a treatment timeline, material options, and a package estimate including transfers.",
-    "salesNotes": "Price-sensitive international lead; moved conversation from generic price to clinical review and package value."
+    "dialogueText": "Patient: I am comparing veneer prices in Turkey. I need 16 veneers, zirconium material.\nRepresentative: I can help you compare safely. To give you the most accurate quote, could you share close-up smile photos and tell us about any dental work you've had before? Our dentist can review them and prepare a personalised treatment plan.\nPatient: I'll send photos now. What's included in the package?\nRepresentative: Our dental package includes: VIP airport transfer, hotel accommodation during treatment, all dental sessions with our specialist, post-treatment check-up, and aftercare kit. Plus, you'll have ongoing support through our London office for any follow-up concerns.\nPatient: That sounds comprehensive. When can I come?\nRepresentative: After the dentist reviews your photos, I'll confirm the exact number of sessions needed and suggest the best dates. Most patients stay 5-7 days for a full set of veneers.",
+    "salesNotes": "Price-sensitive international lead comparing clinics. Moved conversation from generic price comparison to personalised clinical review and comprehensive package value. London office mention increased trust."
   },
   {
     "id": "33333333-3333-4333-8333-333333333333",
     "tenantId": "esteworld-istanbul",
     "clinicName": "Esteworld Istanbul",
-    "language": "tr",
-    "treatment": "Burun estetiği",
+    "language": "en",
+    "treatment": "Breast Uplift + Tummy Tuck",
     "outcome": "successful",
     "leadTemperature": "warm",
-    "dialogueText": "Hasta: Rinoplasti için doktor ve fiyat bilgisi almak istiyorum ama doğal görünmesini istiyorum. Temsilci: Doğal sonuç beklentinizi not aldım. Doktorumuzun doğru ön değerlendirme yapabilmesi için önden ve yandan fotoğraf paylaşabilir misiniz? Ayrıca daha önce burun ameliyatı oldunuz mu? Hasta: Hayır olmadım. Temsilci: Teşekkür ederim, primer rinoplasti olarak değerlendirebiliriz. Fotoğraflarınızla birlikte doktor uygunluğunu kontrol edip süreç, iyileşme ve tahmini paket bilgisini paylaşacağım.",
-    "salesNotes": "Estetik beklentiyi teyit edip primer/revizyon ayrımı soruldu; medikal uygunluk vurgusu güven yarattı."
+    "dialogueText": "Patient: Hi, I'm getting married next year July, so thinking about breast uplift for now and after wedding maybe tummy area. My partner is working out the finances.\nRepresentative: Congratulations on your upcoming wedding! I completely understand wanting to look your best. Here's what I'd suggest:\n1. Breast uplift first – recovery time is about 4-6 weeks, so we can plan this well before your wedding\n2. Tummy tuck after the wedding – this requires a bit more recovery time\nWe can offer both as a phased package, which is more budget-friendly.\nPatient: That sounds good. How much for just the breast uplift for now?\nRepresentative: To give you the most accurate quote, could you share some photos? Our surgeon will assess and provide a personalised plan. In the meantime, I can share before/after photos from similar cases.\nPatient: Ok I'll send photos tonight.\nRepresentative: Thank you! Once reviewed, I'll send you the surgeon's recommendation, package options, and available dates.",
+    "salesNotes": "Bride-to-be with multiple procedure interest. Successfully phased the procedures to fit wedding timeline and budget. Partner involvement in financial decisions required transparent pricing approach."
   },
   {
     "id": "44444444-4444-4444-8444-444444444444",
-    "tenantId": "demo-clinic-london",
-    "clinicName": "Demo Clinic London",
+    "tenantId": "esteworld-istanbul",
+    "clinicName": "Esteworld Istanbul",
     "language": "en",
-    "treatment": "Hair transplant",
+    "treatment": "Rhinoplasty",
     "outcome": "successful",
-    "leadTemperature": "hot",
-    "dialogueText": "Patient: I have already booked flights to Istanbul and need a hair transplant consultation. Representative: Great, since your travel dates are fixed, let's prioritize doctor review today. Please send top, front, and donor area photos. We will check graft planning and whether your dates fit the medical schedule. Patient: I can send them now. Representative: Thank you. Once reviewed, I will confirm the most suitable package and reserve a consultation slot for your travel window.",
-    "salesNotes": "Fixed travel date makes this hot; immediate photo collection and scheduling priority worked."
+    "leadTemperature": "warm",
+    "dialogueText": "Patient: I want a nose job but I want it to look natural, not overdone. Can I see examples of your surgeon's work?\nRepresentative: Absolutely! Natural results are our priority. I'll share some before/after photos from patients who had a similar nose structure. Could you tell me:\n1. Have you had any previous nose surgery?\n2. Are there specific changes you're hoping for?\nPatient: No previous surgery. I mainly want the bridge smoothed and tip refined.\nRepresentative: Great, this would be a primary rhinoplasty. For a precise assessment, could you send front-view and side-profile photos? Our surgeon will review and provide a personalised plan with expected outcomes.\nPatient: I'll send them now.\nRepresentative: Thank you! Dr. will review within 24 hours. I'll also share recovery timeline and package details including VIP transfer and hotel.",
+    "salesNotes": "Patient with clear natural aesthetic expectation. Key: confirming primary vs revision status early, asking for specific goals, and doctor authority through before/after sharing."
   },
   {
     "id": "55555555-5555-4555-8555-555555555555",
-    "tenantId": "demo-clinic-london",
-    "clinicName": "Demo Clinic London",
+    "tenantId": "esteworld-istanbul",
+    "clinicName": "Esteworld Istanbul",
     "language": "en",
-    "treatment": "Weight loss surgery",
+    "treatment": "Hair Transplant",
     "outcome": "neutral",
     "leadTemperature": "cold",
-    "dialogueText": "Patient: Can you guarantee I will lose 40 kilos? Representative: We cannot guarantee a fixed result. Our medical team first reviews BMI, health history, and eligibility. If suitable, the doctor explains expected ranges and risks. Patient: I only want a guarantee. Representative: For your safety, we can only proceed after medical assessment and realistic expectations.",
-    "salesNotes": "Important compliance example; no guarantee should be offered."
+    "dialogueText": "Patient: How much for a hair transplant? Just give me a price.\nRepresentative: To provide an accurate quote, we'd need to see photos of your hair area (top, front, and donor area). The price depends on the number of grafts needed and the technique used (FUE, DHI, or Sapphire). Would you like to share some photos?\nPatient: Just a ballpark figure please.\nRepresentative: Our packages start from €2,200 and can go up to €4,500 depending on the number of grafts. But the most important thing is getting the right assessment first – a wrong graft estimate can lead to poor results.\nPatient: Ok I'll think about it.\nRepresentative: Of course! Whenever you're ready, you can send photos and we'll prepare a personalised plan with no obligation. We also have a London office if you'd prefer to discuss in person.",
+    "salesNotes": "Price-only inquiry without engagement. Failed to convert to photo submission. London office offer was good but came too late. Should have led with doctor review value earlier."
   },
   {
     "id": "66666666-6666-4666-8666-666666666666",
     "tenantId": "esteworld-istanbul",
     "clinicName": "Esteworld Istanbul",
-    "language": "tr",
-    "treatment": "Diş implantı",
+    "language": "en",
+    "treatment": "Liposuction + BBL",
+    "outcome": "successful",
+    "leadTemperature": "hot",
+    "dialogueText": "Patient: I want lipo and BBL. I've already had a consultation with another clinic but I want a second opinion. Can I send my medical form and photos?\nRepresentative: Absolutely! It's very wise to get a second opinion. Please share your medical form, full-body photos, and any previous consultation notes. Our plastic surgeon will review everything and provide an honest assessment.\nPatient: Sending now. I'm looking to come in September if possible.\nRepresentative: September is a great time. Once the surgeon reviews your case, I'll confirm:\n- Whether you're a suitable candidate for combined lipo + BBL\n- Expected recovery timeline\n- Available dates in September\n- Full package pricing including VIP transfer, hotel, and aftercare\nPatient: Perfect. How long do I need to stay?\nRepresentative: Typically 7-10 days: arrival, pre-op consultation, surgery, 5-7 days recovery with check-ups, then departure. We coordinate everything including your hotel near the clinic.",
+    "salesNotes": "Hot lead with clear timeline and previous consultation experience. Second opinion seekers are often close to decision. Key was accepting previous consultation notes and offering comprehensive logistics info quickly."
+  },
+  {
+    "id": "77777777-7777-4777-8777-777777777777",
+    "tenantId": "esteworld-istanbul",
+    "clinicName": "Esteworld Istanbul",
+    "language": "en",
+    "treatment": "Hollywood Smile",
     "outcome": "lost",
     "leadTemperature": "cold",
-    "dialogueText": "Hasta: Sadece tek implant için en düşük fiyat nedir? Temsilci: Fiyatlarımız şu şekilde başlıyor. Hasta: Daha ucuzu var, teşekkürler. Temsilci: Anladım, iyi günler.",
-    "salesNotes": "Başarısız örnek; klinik değerlendirme ve değer önerisi kurulmadı."
+    "dialogueText": "Patient: What's the cheapest option for a full set of veneers?\nRepresentative: Our Hollywood Smile packages vary based on material and number of teeth. The most affordable option starts at around €3,000 for composite veneers. For premium zirconium, it's around €4,500-5,500.\nPatient: That's way more than I was quoted elsewhere. Thanks anyway.\nRepresentative: I understand. Quality materials and experienced dentists do come at a cost, but we stand behind our work. Would you like me to share some before/after photos and patient reviews?\nPatient: No thanks, already decided.",
+    "salesNotes": "Lost deal – purely price-driven patient. Representative should have focused on clinical value, warranty, and London follow-up support before sharing prices. Always establish value before revealing numbers."
   }
 ]

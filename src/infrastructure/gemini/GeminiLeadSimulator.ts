@@ -154,11 +154,37 @@ export const testScenarios = [
     personalityLabel: "Warm Local",
     patientName: "Ece Y.",
     language: "Turkish",
-    treatment: "Saç Ekimi",
-    seedOpening: "Merhaba, saç ekimi düşünüyorum. Tatilde gelebilirim, süreç nasıl ilerliyor?",
+    treatment: "Saç Ekimi (FUE/Sapphire)",
+    seedOpening: "Merhaba, Esteworld hakkında araştırma yapıyorum. FUE ve Sapphire arasındaki fark nedir? Fiyat bilgisi alabilir miyim?",
     persona:
-      "Warm and polite Turkish lead. Becomes quickly engaged when process is clearly explained in Turkish.",
+      "Warm and polite Turkish lead. Familiar with hair transplant basics. Becomes quickly engaged when process is clearly explained in Turkish. Values Esteworld London office for follow-up.",
     maxTurns: 4
+  },
+  {
+    id: "esteworld_bride_makeover",
+    title: "Bride-to-be considering multiple procedures",
+    personality: "indecisive_buyer",
+    personalityLabel: "Indecisive Buyer",
+    patientName: "Dai'za D.",
+    language: "English (UK)",
+    treatment: "Breast Uplift + Tummy Tuck",
+    seedOpening: "Hi, I'm getting married next July and I'm thinking about breast uplift now and maybe tummy area after the wedding. My partner needs to approve the finances though. What packages do you have?",
+    persona:
+      "Bride planning multiple procedures across different timelines. Partner must approve finances. Needs clear phasing options, transparent pricing, and reassurance about recovery before wedding. Based on real Esteworld patient pattern.",
+    maxTurns: 5
+  },
+  {
+    id: "esteworld_veneer_shopper",
+    title: "UK patient comparing veneer prices",
+    personality: "price_conscious",
+    personalityLabel: "Price Conscious",
+    patientName: "Lee R.",
+    language: "English (UK)",
+    treatment: "Dental Veneers (16 teeth)",
+    seedOpening: "I need 16 veneers. I got a quote from another clinic in Antalya for £4,200. What can Esteworld offer? I want zirconium.",
+    persona:
+      "Price-focused UK patient actively comparing Turkish dental clinics. Has specific material preference (zirconium). Needs to be moved from price comparison to clinical review and trust-building. Responds well to before/after photos and London office support mention.",
+    maxTurns: 5
   }
 ] as const;
 

@@ -52,6 +52,11 @@ export interface LeadAssessment {
     confidence: number;
     signals: string[];
   };
+  funnelStage?: {
+    stage: number;
+    label: string;
+    nextMilestone: string;
+  };
   nextBestAction: {
     title: string;
     rationale: string;
@@ -201,4 +206,35 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return (await response.json()) as T;
+}
+
+// --- Demo Patient API ---
+
+export interface DemoPatient {
+  patientId: string;
+  patientName: string;
+  interest: string;
+  value: number;
+  messageCount: number;
+  agentNames: string[];
+  firstMessageAt: string;
+}
+
+export async function listDemoPatients(query?: string) {
+  const params = query ? `?q=${encodeURIComponent(query)}` : "";
+  return request<{ patients: DemoPatient[]; loaded: boolean; total?: number }>(
+    `/api/demo/patients${params}`
+  );
+}
+
+export async function loadDemoPatient(patientId: string) {
+  return request<{
+    accepted: boolean;
+    jobId: string;
+    messageId: string;
+    patient: DemoPatient;
+  }>("/api/demo/load-patient", {
+    method: "POST",
+    body: JSON.stringify({ patientId })
+  });
 }

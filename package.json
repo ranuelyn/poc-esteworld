@@ -15,12 +15,14 @@
     "start:worker": "node dist/infrastructure/queue/chatWorker.js",
     "build": "tsc -p tsconfig.json && vite build --config web/vite.config.ts",
     "typecheck": "tsc --noEmit && tsc -p web/tsconfig.json --noEmit",
-    "seed": "tsx src/scripts/seedFakeDialogues.ts",
+    "seed": "tsx src/scripts/esteworld/seedEsteworldData.ts",
+    "seed:fake": "tsx src/scripts/seedFakeDialogues.ts",
     "extract:closewon": "tsx src/scripts/exportCloseWonDocx.ts",
     "replay:closewon": "tsx src/scripts/replayCloseWonWebhooks.ts",
     "closewon:export": "bash ./scripts/closewon.sh export",
     "closewon:replay": "bash ./scripts/closewon.sh replay",
-    "closewon:seed": "bash ./scripts/closewon.sh seed"
+    "closewon:seed": "bash ./scripts/closewon.sh seed",
+    "seed:esteworld": "tsx src/scripts/esteworld/seedEsteworldData.ts"
   },
   "engines": {
     "node": ">=20.0.0"

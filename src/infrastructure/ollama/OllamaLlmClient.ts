@@ -61,6 +61,11 @@ const leadAssessmentDraftSchema = z.object({
       })
     )
     .length(4),
+  funnelStage: z.object({
+    stage: z.coerce.number().int().min(1).max(11).default(1),
+    label: z.string().min(1).default("Lead"),
+    nextMilestone: z.string().min(1).default("Identify treatment interest"),
+  }).optional(),
   followUpQuestions: z.array(z.string()).max(3).default([]),
   riskFlags: z.array(z.string()).default([])
 });
@@ -144,6 +149,7 @@ function normalizeLeadAssessmentDraft(rawDraft: unknown): unknown {
   draft.suggestedReplies = normalizeSuggestedReplies(draft.suggestedReplies);
   draft.salesBoosts = normalizeSalesBoosts(draft.salesBoosts);
   draft.silencePlan = normalizeSilencePlan(draft.silencePlan);
+  draft.funnelStage = normalizeFunnelStage(draft.funnelStage);
   draft.followUpQuestions = Array.isArray(draft.followUpQuestions) ? draft.followUpQuestions : [];
   draft.riskFlags = Array.isArray(draft.riskFlags) ? draft.riskFlags : [];
   applyRiskCorrections(draft);
@@ -239,6 +245,16 @@ function normalizeSalesBoosts(value: unknown) {
   });
 
   return boosts.length > 0 ? boosts : [...defaultSalesBoosts];
+}
+
+function normalizeFunnelStage(value: unknown) {
+  const funnelStage = isRecord(value) ? value : {};
+
+  return {
+    stage: toBoundedInteger(funnelStage.stage, 1, 11, 1),
+    label: toNonEmptyString(funnelStage.label, "Lead"),
+    nextMilestone: toNonEmptyString(funnelStage.nextMilestone, "Identify treatment interest")
+  };
 }
 
 function normalizeSilencePlan(value: unknown) {
