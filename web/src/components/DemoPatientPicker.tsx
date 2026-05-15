@@ -134,7 +134,7 @@ export function DemoPatientPicker({ disabled, onLoaded, onCancel }: DemoPatientP
               </div>
             </div>
             {loadingPatientId === patient.patientId ? (
-              <span className="demo-loading-badge">Analyzing...</span>
+              <span className="demo-loading-badge">🤖 AI Analyzing...</span>
             ) : (
               <span className="demo-load-badge">Load →</span>
             )}

@@ -184,7 +184,7 @@ export function QdrantViewer() {
       ) : points.length === 0 ? (
         <div className="qdrant-empty">
           <p className="empty-state">No points in Qdrant collection.</p>
-          <p className="empty-state">Run <code>npm run seed</code> to seed Esteworld patient data from CSV.</p>
+          <p className="empty-state">Run <code>npm run seed:esteworld</code> to seed Esteworld patient data from CSV.</p>
         </div>
       ) : (
         <div className="qdrant-points-list">

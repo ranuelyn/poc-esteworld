@@ -310,51 +310,59 @@ export function createRoutes(enqueueWazzupMessage: EnqueueWazzupMessage): Router
         return;
       }
 
-      // Filter usable messages
+      // Filter usable messages (skip media-only, very short)
       const usableMessages = record.messages.filter((m) => {
         const text = m.text.trim();
         return text.length >= 2 && !/^[a-f0-9-]+\.(jpeg|jpg|png|gif|mp4|pdf|webp)$/i.test(text);
       });
 
-      // Take the last N messages for display as context
-      const DISPLAY_WINDOW = 15;
+      if (usableMessages.length === 0) {
+        res.status(400).json({ error: "Patient has no usable messages." });
+        return;
+      }
+
+      // Take the last N messages for conversation context
+      const DISPLAY_WINDOW = 12;
       const displayMessages = usableMessages.slice(-DISPLAY_WINDOW);
 
       const contactId = `whatsapp:esteworld-${record.patientId}`;
       const tenantId = "esteworld-istanbul";
-      const baseTimestamp = Date.now();
-      const messageIds: string[] = [];
+      const messageId = `esteworld-${record.patientId}-${Date.now()}`;
 
-      // Insert each display message as its own chat bubble (context only, no AI trigger)
-      for (let i = 0; i < displayMessages.length; i++) {
-        const msg = displayMessages[i]!;
-        const messageId = `esteworld-${record.patientId}-${baseTimestamp}-${i}`;
-        messageIds.push(messageId);
+      // Build the full conversation transcript for AI analysis
+      const fullTranscript = displayMessages
+        .map((m) => {
+          const role = m.isAgent ? "Sales representative" : "Lead";
+          return `${role} (${m.rawTimestamp}): ${m.text.trim()}`;
+        })
+        .join("\n");
 
-        const chatMsg: ChatMessage = {
-          tenantId,
-          clinicName: "Esteworld Istanbul",
-          channel: "whatsapp",
-          contactId,
-          messageId,
-          patientName: record.patientName,
-          language: "English (UK)",
-          treatment: record.interest,
-          text: msg.text.trim(),
-          receivedAt: msg.timestamp || new Date(baseTimestamp + i * 1000).toISOString(),
-        };
+      // Create a single ChatMessage with the full transcript
+      const chatMsg: ChatMessage = {
+        tenantId,
+        clinicName: "Esteworld Istanbul",
+        channel: "whatsapp",
+        contactId,
+        messageId,
+        patientName: record.patientName,
+        language: "English (UK)",
+        treatment: record.interest,
+        text: fullTranscript,
+        receivedAt: new Date().toISOString(),
+      };
 
-        inMemoryLeadSink.upsertMessage(chatMsg);
-      }
+      // Upsert the message (creates the case with conversation bubbles)
+      inMemoryLeadSink.upsertMessage(chatMsg);
 
-      // Return without AI analysis — user will type a test message in the UI
-      // which triggers the real RAG pipeline (embed → search → LLM)
+      // Enqueue for AI analysis (RAG pipeline: embed → search Qdrant → LLM)
+      const { jobId } = await enqueueWazzupMessage.execute(chatMsg);
+
       res.status(200).json({
         accepted: true,
-        messageId: messageIds[messageIds.length - 1],
+        jobId,
+        messageId,
         totalMessages: usableMessages.length,
         displayedMessages: displayMessages.length,
-        hint: "Context loaded. Type a new message in the chat to test RAG pipeline.",
         patient: {
           patientId: record.patientId,
           patientName: record.patientName,
@@ -362,6 +370,7 @@ export function createRoutes(enqueueWazzupMessage: EnqueueWazzupMessage): Router
           value: record.value,
           messageCount: record.messageCount,
           agentNames: record.agentNames,
+          firstMessageAt: record.firstMessageAt,
         },
       });
     } catch (error) {
