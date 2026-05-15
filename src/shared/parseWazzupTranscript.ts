@@ -1,6 +1,8 @@
 /**
  * Close-won / Wazzup export lines look like `Representative: …` and `Patient: …`.
- * Map to UI roles: patient (and phone channel) → lead, representative → agent.
+ * Esteworld CSV demo lines look like `Sales representative (13.05.2025 15:47): …`
+ * and `Lead (13.05.2025 15:47): …`.
+ * Map to UI roles: patient/lead/phone → lead, representative/sales representative → agent.
  */
 export interface ParsedConversationTurn {
   role: "lead" | "agent";
@@ -26,14 +28,17 @@ export function splitWazzupTranscriptToTurns(fullText: string): ParsedConversati
     messages.push({ role: currentRole, text: body });
   };
 
-  const speakerLine = /^(Representative|Patient|Phone):\s*(.*)$/i;
+  // Match both formats:
+  //   "Representative: ..."  /  "Patient: ..."  /  "Phone: ..."
+  //   "Sales representative (13.05.2025 15:47): ..."  /  "Lead (13.05.2025 15:47): ..."
+  const speakerLine = /^(Sales\s+representative|Representative|Patient|Lead|Phone)(?:\s*\([^)]*\))?:\s*(.*)$/i;
 
   for (const line of lines) {
     const m = speakerLine.exec(line);
     if (m?.[1]) {
       flush();
       const who = m[1].toLowerCase();
-      currentRole = who === "representative" ? "agent" : "lead";
+      currentRole = (who === "representative" || who === "sales representative") ? "agent" : "lead";
       buffer.length = 0;
       const rest = (m[2] ?? "").trim();
       if (rest) {
@@ -55,7 +60,8 @@ export function splitWazzupTranscriptToTurns(fullText: string): ParsedConversati
 
 export function transcriptLooksLikeWazzupTurns(text: string): boolean {
   const t = text.replace(/\r\n/g, "\n");
-  const hasRep = /(^|\n)Representative:\s*/i.test(t);
-  const hasPat = /(^|\n)Patient:\s*/i.test(t);
-  return hasRep && hasPat;
+  const hasRep = /(^|\n)(Sales\s+representative|Representative)(\s*\([^)]*\))?:\s*/i.test(t);
+  const hasLead = /(^|\n)(Patient|Lead|Phone)(\s*\([^)]*\))?:\s*/i.test(t);
+  return hasRep && hasLead;
 }
+
