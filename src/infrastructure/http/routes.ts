@@ -97,10 +97,14 @@ const leadAssessmentSchema = z
     rationale: z.string().min(1),
     followUpQuestions: z.array(z.string()),
     riskFlags: z.array(z.string()),
+    funnelStage: z.object({
+      stage: z.number().int().min(1).max(11),
+      label: z.string().min(1),
+      nextMilestone: z.string().min(1)
+    }).optional(),
     retrievedDialogueIds: z.array(z.string()),
     createdAt: z.string().min(1)
-  })
-  .strict();
+  });
 
 const boostSchema = z.object({
   boostType: z.enum([
