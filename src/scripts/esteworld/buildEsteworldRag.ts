@@ -300,45 +300,74 @@ function normalizeTreatment(interest: string): string {
 function detectOutcome(record: PatientRecord): DialogueOutcome {
   const allText = record.messages.map((m) => m.text.toLowerCase()).join(" ");
 
-  // Strong signals for successful outcome
+  // Strong signals for successful outcome — require CONCRETE purchase actions
   const successSignals = [
-    /confirm|onay|confirmed/,
-    /deposit|depozito/,
-    /booked|rezerv/,
-    /operation.*date|operasyon.*tarih/,
-    /see you|görüşürüz/,
-    /welcome to|hoş geldiniz/,
-    /your.*reservation/,
-    /flight.*ticket|uçak.*bilet/,
+    /deposit.*paid|paid.*deposit|depozito.*ödendi/,
+    /booked.*operation|operation.*booked|operasyon.*rezerv/,
+    /confirmed.*date|date.*confirmed|tarih.*onay/,
+    /flight.*booked|ticket.*booked|bilet.*alındı/,
+    /see you.*istanbul|see you.*hospital|görüşürüz.*istanbul/,
+    /welcome to.*esteworld|hoş geldiniz/,
+    /your.*reservation.*confirmed/,
+    /payment.*received|ödeme.*alındı|we have received/,
   ];
 
   const successScore = successSignals.filter((p) => p.test(allText)).length;
-  if (successScore >= 2) return "successful";
 
-  // Lost signals
-  const lostSignals = [
+  // Also check for deposit/payment link signals from agent side
+  const agentText = record.messages.filter((m) => m.isAgent).map((m) => m.text.toLowerCase()).join(" ");
+  const hasPaymentLink = /paytr\.com|payment.*link|ödeme.*link/.test(agentText);
+  const hasDepositConfirm = /deposit.*received|we have received|ödeme.*aldık/.test(agentText);
+
+  const adjustedSuccessScore = successScore + (hasPaymentLink ? 1 : 0) + (hasDepositConfirm ? 1 : 0);
+
+  // Need 3+ strong signals for "successful"
+  if (adjustedSuccessScore >= 3) return "successful";
+
+  // Lost signals — single signal is enough for some strong indicators
+  const strongLostSignals = [
     /not interested|ilgilenmiyorum/,
-    /too expensive|pahalı/,
-    /another clinic|başka klinik/,
-    /cancel|iptal/,
-    /no.*thanks|hayır.*teşekkür/,
+    /cancel|iptal|refund/,
+    /another clinic|başka klinik|went.*elsewhere/,
+    /decided.*not|not.*going.*ahead/,
+    /changed.*mind|vazgeçtim/,
   ];
 
-  const lostScore = lostSignals.filter((p) => p.test(allText)).length;
-  if (lostScore >= 2) return "lost";
+  const weakLostSignals = [
+    /too expensive|pahalı|cheaper/,
+    /no.*thanks|hayır.*teşekkür/,
+    /maybe.*later|belki.*sonra/,
+    /still.*thinking|düşünüyorum/,
+    /not.*sure|emin.*değil/,
+  ];
 
-  // Check if last messages are just agent follow-ups with no patient response
-  const lastFew = record.messages.slice(-5);
-  const allAgentEnd = lastFew.every((m) => m.isAgent);
-  if (allAgentEnd && record.messages.length > 10) return "neutral";
+  const strongLostScore = strongLostSignals.filter((p) => p.test(allText)).length;
+  const weakLostScore = weakLostSignals.filter((p) => p.test(allText)).length;
 
-  // Default: check engagement level
+  if (strongLostScore >= 1) return "lost";
+  if (weakLostScore >= 2) return "lost";
+
+  // Ghost pattern: last 3+ messages are all agent with no patient response
+  const lastThree = record.messages.slice(-3);
+  const ghostedByPatient = lastThree.length >= 3 && lastThree.every((m) => m.isAgent);
+
+  // Long gap pattern: check if conversation ends with agent follow-ups
+  const lastFive = record.messages.slice(-5);
+  const agentEndCount = lastFive.filter((m) => m.isAgent).length;
+
+  if (ghostedByPatient) return "lost";
+  if (agentEndCount >= 4 && record.messages.length > 8) return "neutral";
+
+  // Check engagement level
   const patientMsgs = record.messages.filter((m) => !m.isAgent).length;
   const agentMsgs = record.messages.filter((m) => m.isAgent).length;
 
   if (patientMsgs === 0) return "lost";
-  if (agentMsgs > 0 && patientMsgs / agentMsgs > 0.5 && successScore >= 1) return "successful";
 
+  // Only mark successful if strong engagement + concrete success signals
+  if (agentMsgs > 0 && patientMsgs / agentMsgs > 0.6 && adjustedSuccessScore >= 2) return "successful";
+
+  // Default to neutral — NOT successful
   return "neutral";
 }
 

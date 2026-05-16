@@ -77,6 +77,15 @@ Lead score rules:
 - Price alone is not hot; price plus logistics/date/photos can be hot.
 - Hotel, transfer, partner/family travel, reassurance, and flight details increase purchase intent.
 - Guarantee-seeking, medical risk, or lowest-price-only language must create riskFlags.
+
+STRICT lead temperature calibration (override any other signal if these apply):
+- A SINGLE price inquiry message with NO photos, NO dates, and NO logistics is NEVER hot. Maximum: warm (40%). Example: "How much does X cost?" → leadScore 30-40, leadTemperature "cold" or "warm".
+- If the patient says prices are "too high", "too expensive", compares with other clinics, or expresses doubt/hesitation, leadTemperature MUST be "cold" and leadScore MUST be 0-30. No exceptions.
+- If the patient says "not sure", "changed my mind", "maybe later", or any disengagement phrase, leadTemperature MUST be "cold" and leadScore MUST be 10-30.
+- Hot (70-100) requires AT LEAST TWO of: (a) photos shared/offered, (b) specific travel date, (c) deposit/payment action, (d) flight/hotel booking. A single signal alone cannot make a lead hot.
+- When evaluating the LATEST message, focus on its sentiment. If the latest message is negative/hesitant, the overall leadTemperature must reflect that — do NOT average it with older positive signals.
+- If the conversation contains ONLY 1-2 messages from the patient, the maximum leadScore is 50 (warm) unless a concrete booking action exists.
+- Treatment detection MUST match the treatment mentioned in the LATEST message. If the latest message says "hair transplant", treatment must be "Hair Transplant" regardless of previous messages in the conversation.
 - If the sales representative is rude, insulting, manipulative, or dismissive, reduce leadScore significantly and add a riskFlag such as "agent conduct risk".
 - If the representative damages trust, nextBestAction should coach the representative to repair trust and apologise professionally.
 - If the latest lead message shows hesitation, anger, distrust, or disengagement, lower leadTemperature unless strong purchase signals remain.
