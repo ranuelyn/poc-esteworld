@@ -28,7 +28,7 @@ export class QdrantRagRepository implements RagRepositoryPort {
     private readonly vectorSize = env.QDRANT_VECTOR_SIZE,
     qdrantUrl = env.QDRANT_URL
   ) {
-    this.client = new QdrantClient({ url: qdrantUrl });
+    this.client = new QdrantClient({ url: qdrantUrl, checkCompatibility: false });
   }
 
   async ensureCollection(): Promise<void> {
@@ -61,21 +61,28 @@ export class QdrantRagRepository implements RagRepositoryPort {
 
     await this.ensureCollection();
 
-    await this.client.upsert(this.collectionName, {
-      wait: true,
-      points: dialogues.map((dialogue, index) => {
-        const vector = vectors[index];
-        if (!vector) {
-          throw new Error(`Missing vector for dialogue ${dialogue.id}.`);
-        }
+    // Batch upsert to avoid Qdrant payload size limits (33MB default)
+    const BATCH_SIZE = 100;
+    for (let i = 0; i < dialogues.length; i += BATCH_SIZE) {
+      const batchDialogues = dialogues.slice(i, i + BATCH_SIZE);
+      const batchVectors = vectors.slice(i, i + BATCH_SIZE);
 
-        return {
-          id: dialogue.id,
-          vector,
-          payload: this.toPayload(dialogue)
-        };
-      })
-    });
+      await this.client.upsert(this.collectionName, {
+        wait: true,
+        points: batchDialogues.map((dialogue, index) => {
+          const vector = batchVectors[index];
+          if (!vector) {
+            throw new Error(`Missing vector for dialogue ${dialogue.id}.`);
+          }
+
+          return {
+            id: dialogue.id,
+            vector,
+            payload: this.toPayload(dialogue)
+          };
+        })
+      });
+    }
   }
 
   async searchSimilarSuccessfulDialogues(
